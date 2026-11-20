@@ -1,0 +1,1 @@
+{"name":"Tablet Flip Clock","short_name":"Flip Clock","description":"Offline-first flip clock for Android tablets","start_url":"./","scope":"./","display":"standalone","background_color":"#08090b","theme_color":"#08090b","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
