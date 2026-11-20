@@ -22,3 +22,9 @@ Weather is **OFF by default**. Enable it in Settings, then search a city or gran
 - For best PWA install compatibility, consider adding PNG icons of 192px and 512px to the manifest later. SVG works in Chromium but installation prompts can vary.
 - No external JS or CSS assets are needed.
 - `file://` opening is not equivalent to PWA installation; service workers require HTTPS or localhost.
+
+## Version 1.1 — larger clock
+The default four flip digits are significantly larger on Android tablets. When seconds are enabled, digits scale down to fit all six. The service worker cache is bumped to v1.1.0; after uploading, reload the published site online and relaunch the installed app to receive the update.
+
+## Version 1.2 — adjustable clock size
+Open Settings and use **Clock size** slider (50–100%). Default is 100% (the large v1.1 layout). The choice persists offline and across app restarts. Clock layout continues to adapt to orientation and to the Show seconds option. Upload all files to the same GitHub Pages repository; reload online once so the v1.2 service worker can cache the update.
