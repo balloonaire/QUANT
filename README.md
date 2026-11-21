@@ -1,30 +1,36 @@
-# Tablet Flip Clock v1.0
+# 4Q Crypto Research Lab v3.1 — Hybrid Live Chart Intelligence
 
-Offline-first Android tablet flip-clock PWA with optional online weather and an ON/OFF screen-awake control.
+Research-only simulator. No real orders, prediction-market wagers, account connections, signing, or investment recommendations.
 
-## Deploy to GitHub Pages
-1. Create a public GitHub repository (for example `tablet-flip-clock`).
-2. Upload **all four files** (`index.html`, `sw.js`, `manifest.webmanifest`, `icon.svg`) to the repository root.
-3. In **Settings → Pages**, choose **Deploy from a branch**, `main`, `/ (root)`, and Save.
-4. Wait for GitHub Pages to publish, then visit the HTTPS Pages URL in Android Chrome.
-5. Open Chrome's three-dot menu and choose **Install app** or **Add to Home screen**. Launch it once while online to cache files.
-6. Turn off Wi-Fi and mobile data, close and reopen the installed app, and confirm the clock still works.
+## Files
+- `index.html`: mobile-first static dashboard (GitHub Pages compatible), preserving v3.0 features and 11 coins: BTC ETH SOL ARB ASTER AVAX DOT INJ TIA ARKM FIL.
+- `server.py`: optional Python 3.10+ public-data gateway, including `/api/candles`.
+- `test_v3.py`, `test_v31.py`: offline deterministic gateway tests.
 
-## Screen awake
-Open **Settings → Keep screen awake** and turn it ON. This uses the browser Screen Wake Lock API, supported in many recent Android Chromium browsers over HTTPS. A lock may be released when the app loses visibility, the device enters power-saving mode, or Android imposes restrictions. The app attempts to reacquire it when visible again. Turn the toggle OFF to release it. A browser may require a direct tap to enable the lock; if the status says unavailable, try toggling OFF and ON. This is **not** a system-level override of Android's screen timeout.
+## Launch
+1. Extract ZIP; upload `index.html` to a GitHub Pages repository, enable Pages from main/root. Demo/backtesting and CSV import work without the gateway.
+2. To run locally: `python server.py` (listens on loopback port 8787); serve HTML with `python -m http.server 8000` and visit `http://localhost:8000`.
+3. For custom live candles, set Gateway URL in dashboard to `http://localhost:8787`, choose a coin and interval, click **Load candles**. To publish live feeds on GitHub Pages, deploy a separate secured HTTPS gateway and set `ALLOWED_ORIGIN` to your Pages origin. Do not put API secrets in HTML.
+4. For TradingView, choose **TradingView embedded** in Chart source; its widget requires third-party scripts and network access. TradingView symbol support varies.
+5. For historical paper simulation using real OHLCV closes, load candles then click **Backtest these candles**. This explicitly replaces the selected coin's demo data; other coins retain their original demo/imported data. Do not mix cross-coin correlations from different timestamps.
 
-## Weather
-Weather is **OFF by default**. Enable it in Settings, then search a city or grant location permission. Weather uses the Open-Meteo geocoding and forecast endpoints. Last successful conditions are saved locally and marked as cached when offline. Weather may become stale; offline forecasts are not generated. No account or API key is required for non-commercial use; review Open-Meteo terms for other uses.
+## v3.1 chart features
+- Independent TradingView Advanced Chart embed, plus custom Lightweight Charts (v5 CDN); switchable per chart.
+- Binance public market-data endpoint via Python gateway for 300 recent OHLCV bars; 1m, 5m, 15m, 1h, 4h, 1d, 1w. Some pairs (especially ASTER) may be unsupported. Failed requests report unavailable rather than inventing candles. Refresh is polling, not tick-level streaming.
+- EMA 20/50 and Bollinger 20/2 overlays; RSI 14 and MACD 12/26/9 numerical readouts. Paper decision markers are shown only after an explicit backtest on matching exchange candle data.
+- Full-screen button, responsive layout, optional refresh, candle CSV export. Liquidity context shows latest *snapshots* of USDT supply and BTC dominance; no invented historical overlays. DXY remains unavailable pending verified feed.
+- v3.0 stablecoin supply, global market cap, public BTC/ETH/SOL address research, user-imported labeled whale transfers and exchange flows, heuristic signals, synthetic and imported historical backtests, paper portfolio and CSV exports preserved.
 
-## Other notes
-- The clock uses the tablet's device time and timezone; offline accuracy depends on correct device time.
-- Settings are stored locally in browser storage; clearing site data removes them and may remove offline cache.
-- For best PWA install compatibility, consider adding PNG icons of 192px and 512px to the manifest later. SVG works in Chromium but installation prompts can vary.
-- No external JS or CSS assets are needed.
-- `file://` opening is not equivalent to PWA installation; service workers require HTTPS or localhost.
+## Data provenance and limitations
+- `GET /api/candles?coin=SOL&interval=1h` returns `{data:[{time,open,high,low,close,volume}],fetched_at,stale,source,caveat}`. Gateway caches for 30 seconds. Time is Unix UTC seconds. Last bar may be incomplete.
+- `GET /api/market`, `/api/stablecoins`, `/api/global`, `/api/dxy`, `/api/wallet?chain=...&address=...` retain v3.0 semantics.
+- Binance public market-data availability depends on geography, API policy and symbol listings; rate limits and errors are surfaced. TradingView embeds may be blocked by browsers, CSP, network policy, or provider restrictions. CDN availability required for custom chart rendering.
+- Chart candles and TradingView may use different exchange feeds, time zones or pricing. No promise of exact matching. External data is not continuously collected by GitHub Pages alone.
+- No real-time DXY source is included; DXY is not a measure of USD money flow. USDT circulating supply does not equal net exchange inflow; BTC dominance is market-cap share. Cross-market correlations require aligned historical timestamps.
+- Wallet checks are public address statistics only, not chain-wide whale discovery. Exchange labels must be externally verified; imported transfers may double count.
+- Backtesting is a simplified exposure model with friction, not a calibrated prediction or Polymarket settlement model. No walk-forward or out-of-sample validation. Simulated returns do not imply future profits.
+- For production: HTTPS, API authentication, per-user quotas, provider terms review, secret management, monitoring, persistence and independent data QA.
 
-## Version 1.1 — larger clock
-The default four flip digits are significantly larger on Android tablets. When seconds are enabled, digits scale down to fit all six. The service worker cache is bumped to v1.1.0; after uploading, reload the published site online and relaunch the installed app to receive the update.
-
-## Version 1.2 — adjustable clock size
-Open Settings and use **Clock size** slider (50–100%). Default is 100% (the large v1.1 layout). The choice persists offline and across app restarts. Clock layout continues to adapt to orientation and to the Show seconds option. Upload all files to the same GitHub Pages repository; reload online once so the v1.2 service worker can cache the update.
+## Tests
+`python test_v3.py && python test_v31.py`
+Extract inline JavaScript and run `node --check` to verify syntax. Browser smoke testing may be blocked by the execution environment's local-network policy; this is not evidence of browser validation.
